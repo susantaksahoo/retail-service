@@ -1,5 +1,7 @@
 package com.retailer.rewards.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.retailer.rewards.entity.Customer;
+import com.retailer.rewards.error.CustomerNotFoundException;
 import com.retailer.rewards.model.Rewards;
 import com.retailer.rewards.repository.CustomerRepository;
 import com.retailer.rewards.service.RewardsService;
@@ -18,21 +21,21 @@ import com.retailer.rewards.service.RewardsService;
 @RequestMapping("/customers")
 public class RewardController {
 
-    @Autowired
-    RewardsService rewardsService;
+	@Autowired
+	RewardsService rewardsService;
 
-    @Autowired
-    CustomerRepository customerRepository;
+	@Autowired
+	CustomerRepository customerRepository;
 
-    @GetMapping(value = "/{customerId}/rewards",produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Rewards> getRewardsByCustomerId(@PathVariable("customerId") Long customerId){
-        Customer customer = customerRepository.findByCustomerId(customerId);
-        if(customer == null)
-        {
-        	throw new RuntimeException("Invalid / Missing customer Id ");
-        }
-        Rewards customerRewards = rewardsService.getRewardsByCustomerId(customerId);
-        return new ResponseEntity<>(customerRewards,HttpStatus.OK);
-    }
+	@GetMapping(value = "/{customerId}/rewards", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Rewards> getRewardsByCustomerId(@PathVariable("customerId") Long customerId) {
+		Optional<Customer> customer = customerRepository.findByCustomerId(customerId);
+
+		 if (customer.isEmpty())
+	            throw new CustomerNotFoundException("customerId-" + customerId);
+
+		Rewards customerRewards = rewardsService.getRewardsByCustomerId(customerId);
+		return new ResponseEntity<>(customerRewards, HttpStatus.OK);
+	}
 
 }

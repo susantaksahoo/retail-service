@@ -24,8 +24,8 @@ public class RewardsServiceImpl implements RewardsService {
 	public Rewards getRewardsByCustomerId(Long customerId) {
 
 		Timestamp lastMonthTimestamp = getDateBasedOnOffSetDays(RewardConstants.daysInMonths);
-		Timestamp lastSecondMonthTimestamp = getDateBasedOnOffSetDays(2*RewardConstants.daysInMonths);
-		Timestamp lastThirdMonthTimestamp = getDateBasedOnOffSetDays(3*RewardConstants.daysInMonths);
+		Timestamp lastSecondMonthTimestamp = getDateBasedOnOffSetDays(RewardConstants.twoPointRewards*RewardConstants.daysInMonths);
+		Timestamp lastThirdMonthTimestamp = getDateBasedOnOffSetDays(RewardConstants.threePointRewards*RewardConstants.daysInMonths);
 
 		List<Transaction> lastMonthTransactions = transactionRepository.findAllByCustomerIdAndTransactionDateBetween(
 				customerId, lastMonthTimestamp, Timestamp.from(Instant.now()));
@@ -59,7 +59,7 @@ public class RewardsServiceImpl implements RewardsService {
 		if (t.getTransactionAmount() > RewardConstants.firstRewardLimit && t.getTransactionAmount() <= RewardConstants.secondRewardLimit) {
 			return Math.round(t.getTransactionAmount() - RewardConstants.firstRewardLimit);
 		} else if (t.getTransactionAmount() > RewardConstants.secondRewardLimit) {
-			return Math.round(t.getTransactionAmount() - RewardConstants.secondRewardLimit) * 2
+			return Math.round(t.getTransactionAmount() - RewardConstants.secondRewardLimit) * RewardConstants.twoPointRewards
 					+ (RewardConstants.secondRewardLimit - RewardConstants.firstRewardLimit);
 		} else
 			return 0l;
